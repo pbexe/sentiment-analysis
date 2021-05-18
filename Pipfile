@@ -7,6 +7,9 @@ name = "pypi"
 numpy = "*"
 scipy = "*"
 transformers = "*"
+torch = "==1.7.0"
+pandas = "*"
+matplotlib = "*"
 
 [dev-packages]
 
@@ -14,4 +17,4 @@ transformers = "*"
 python_version = "3.8"
 
 [scripts]
-install_pytorch = "pip3 install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html"
+install_pytorch = "pip3 install torch==1.8.1 -f https://download.pytorch.org/whl/torch_stable.html"
