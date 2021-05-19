@@ -3,16 +3,8 @@ from models import example_model
 from scipy.special import softmax
 import numpy as np
 
-def example():
-    model, tokenizer, labels = example_model()
 
-    while 1:
-        text = input("sentence>>> ")
-        text = preprocess(text)
-        encoded_input = tokenizer(text, return_tensors='pt')
-        output = model(**encoded_input)
-        scores = output[0][0].detach().numpy()
-        scores = softmax(scores)
+model, tokenizer, labels = example_model()
 
 while 1:
     analysis()
