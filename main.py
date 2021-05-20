@@ -5,9 +5,9 @@ import numpy as np
 
 
 model, tokenizer, labels = example_model()
+analysis()
 
 while 1:
-    analysis()
     text = input("sentence>>> ")
     text = preprocess(text)
     encoded_input = tokenizer(text, return_tensors='pt')
