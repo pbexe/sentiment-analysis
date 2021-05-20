@@ -17,6 +17,15 @@ from preprocessing import analysis, preprocess
 
 
 def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
+    """Load data from the provided filesystem
+
+    Args:
+        type_ (str, optional): Type of data to loads. Defaults to "train".
+
+    Returns:
+        Tuple[List[str], List[int]]: Tuple of x and y data.
+    """
+
     x = []
     y = []
     with open(f"data/{type_}_text.txt", "r") as fp:
@@ -26,7 +35,13 @@ def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
     return x, y
 
 
-def svm_implementation():
+def svm_implementation() -> Tuple[SVC, TfidfTransformer, CountVectorizer]:
+    """Implementation of an SVM classifier
+
+    Returns:
+        Tuple[SVC, TfidfTransformer, CountVectorizer]: The SVM model as well as
+        the objects required to transform the data for the model.
+    """
     console.log("Getting Data")
     train_x, train_y = get_data()
     console.log(len(train_x))
