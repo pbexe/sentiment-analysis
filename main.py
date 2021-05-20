@@ -29,8 +29,11 @@ def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
 def svm_implementation():
     console.log("Getting Data")
     train_x, train_y = get_data()
-    # print(train_x[:5])
-    # print(train_y[:5])
+    console.log(len(train_x))
+    print(train_x[:5])
+    print(train_y[:5])
+    train_x = train_x[:1000]
+    train_y = train_y[:1000]
     console.log("Pre-processing Data")
     train_x_processed, tfid, vectorizer = miles_cw_extractor(train_x, train_y)
     console.log("Generating Model")
@@ -40,22 +43,26 @@ def svm_implementation():
 
 if __name__ == "__main__":
     console.rule("Building Model")
-    model, tfid, vectorizer = svm_implementation()
-    pickle.dump((model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
+    svm_model, tfid, vectorizer = svm_implementation()
+    pickle.dump((svm_model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
     console.rule("Making predictions")
-    console.log(model.predict(tfid.fit(vectorizer.transform(["That was good"]))))
-    # model, tokenizer, labels = example_model()
-    # analysis()
-    # while 1:
-    #     text = input("sentence>>> ")
-    #     text = preprocess(text)
-    #     encoded_input = tokenizer(text, return_tensors='pt')
-    #     output = model(**encoded_input)
-    #     scores = output[0][0].detach().numpy()
-    #     scores = softmax(scores)
-    #     ranking = np.argsort(scores)
-    #     ranking = ranking[::-1]
-    #     for i in range(scores.shape[0]):
-    #         l = labels[ranking[i]]
-    #         s = scores[ranking[i]]
-    #         print(f"{i+1}) {l} {np.round(float(s), 4)}")
+    # console.log(model.predict(tfid.transform(vectorizer.transform(["That was good"])).toarray()))
+    
+    model, tokenizer, labels = example_model()
+    analysis()
+    while 1:
+        text = input("sentence>>> ")
+        text = preprocess(text)
+        encoded_input = tokenizer(text, return_tensors='pt')
+        output = model(**encoded_input)
+        scores = output[0][0].detach().numpy()
+        scores = softmax(scores)
+        ranking = np.argsort(scores)
+        ranking = ranking[::-1]
+        for i in range(scores.shape[0]):
+            l = labels[ranking[i]]
+            s = scores[ranking[i]]
+            print(f"{i+1}) {l} {np.round(float(s), 4)}")
+        # ------------
+        # console.log(svm_model.predict(tfid.transform(vectorizer.transform([text])).toarray()))
+        console.log(("negative", "neutral", "positive")[svm_model.predict(tfid.transform(vectorizer.transform([text])).toarray())[0]])
