@@ -1,19 +1,19 @@
-from typing import List, Tuple
 import pickle
-from console import console
+from typing import List, Tuple
 
 import numpy as np
 from rich import print
 from rich.panel import Panel
 from rich.traceback import install
 install()
+
+from console import console
+from os.path import exists
 from scipy.special import softmax
 
-from models import example_model
-from preprocessing import analysis, preprocess
-
 from feature_extraction import miles_cw_extractor
-from models import svm_model
+from models import example_model, svm_model
+from preprocessing import analysis, preprocess
 
 
 def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
@@ -42,14 +42,20 @@ def svm_implementation():
 
 
 if __name__ == "__main__":
-    console.rule("Building Model")
-    svm_model, tfid, vectorizer = svm_implementation()
-    pickle.dump((svm_model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
-    console.rule("Making predictions")
-    # console.log(model.predict(tfid.transform(vectorizer.transform(["That was good"])).toarray()))
-    
+    console.rule("Building Models")
+    console.log("Building SVM")
+    if exists("checkpoint.p"):
+        console.log("Checkpoint found in FS")
+        svm_model, tfid, vectorizer = pickle.load(open("checkpoint.p", "rb"))
+    else:
+        console.log("No checkpoint found. Generating new SVM")
+        svm_model, tfid, vectorizer = svm_implementation()
+        pickle.dump((svm_model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
+    console.log("Loading example model")    
     model, tokenizer, labels = example_model()
+    console.rule("Performing Analysis")
     analysis()
+    console.rule("Making predictions")
     while 1:
         text = input("sentence>>> ")
         text = preprocess(text)
@@ -59,10 +65,10 @@ if __name__ == "__main__":
         scores = softmax(scores)
         ranking = np.argsort(scores)
         ranking = ranking[::-1]
+        console.log("[bold]Example model:[/]")
         for i in range(scores.shape[0]):
             l = labels[ranking[i]]
             s = scores[ranking[i]]
-            print(f"{i+1}) {l} {np.round(float(s), 4)}")
-        # ------------
-        # console.log(svm_model.predict(tfid.transform(vectorizer.transform([text])).toarray()))
+            console.log(f"{i+1}) {l} {np.round(float(s), 4)}")
+        console.log("[bold]SVM:[/]")
         console.log(("negative", "neutral", "positive")[svm_model.predict(tfid.transform(vectorizer.transform([text])).toarray())[0]])
