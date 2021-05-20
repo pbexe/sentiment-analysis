@@ -12,6 +12,7 @@ pandas = "*"
 matplotlib = "*"
 sklearn = "*"
 rich = "*"
+nltk = "*"
 
 [dev-packages]
 

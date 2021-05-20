@@ -1,13 +1,19 @@
-from preprocessing import preprocess, analysis
-from models import example_model
-from scipy.special import softmax
-import numpy as np
 from typing import List, Tuple
+import pickle
+from console import console
+
+import numpy as np
 from rich import print
+from rich.panel import Panel
 from rich.traceback import install
 install()
+from scipy.special import softmax
 
+from models import example_model
+from preprocessing import analysis, preprocess
 
+from feature_extraction import miles_cw_extractor
+from models import svm_model
 
 
 def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
@@ -21,14 +27,23 @@ def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
 
 
 def svm_implementation():
+    console.log("Getting Data")
     train_x, train_y = get_data()
-    print(train_x[:5])
-    print(train_y[:5])
-    1/0
+    # print(train_x[:5])
+    # print(train_y[:5])
+    console.log("Pre-processing Data")
+    train_x_processed, tfid, vectorizer = miles_cw_extractor(train_x, train_y)
+    console.log("Generating Model")
+    model = svm_model(train_x_processed, train_y)
+    return model, tfid, vectorizer
 
 
 if __name__ == "__main__":
-    svm_implementation()
+    console.rule("Building Model")
+    model, tfid, vectorizer = svm_implementation()
+    pickle.dump((model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
+    console.rule("Making predictions")
+    console.log(model.predict(tfid.fit(vectorizer.transform(["That was good"]))))
     # model, tokenizer, labels = example_model()
     # analysis()
     # while 1:
