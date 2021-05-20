@@ -11,6 +11,7 @@ torch = "==1.7.0"
 pandas = "*"
 matplotlib = "*"
 sklearn = "*"
+rich = "*"
 
 [dev-packages]
 
