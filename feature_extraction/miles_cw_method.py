@@ -2,26 +2,29 @@
 on my part of the project. This is pretty much what I used in the last CW.
 """
 
+import nltk
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-import nltk
+
 nltk.download("stopwords", quiet=True)
-from nltk.corpus import stopwords
-from rich.progress import track
+from typing import List, Tuple
+
 from console import console
+from nltk.corpus import stopwords
+from numpy import ndarray
+from rich.progress import track
 
 
-
-
-
-def miles_cw_extractor(train_x, train_y):
+def miles_cw_extractor(train_x:List[str], train_y:List[int]) -> Tuple[List[ndarray], TfidfTransformer, CountVectorizer]:
     """Extracts features from a list of strings
 
     Args:
-        stories (List[str]): Strings to extract features from
+        train_x (List[str]): Strings to extract features from
+        train_y (List[int]): Corresponding feature labels
 
     Returns:
-        List[List[int]]: List of vectors which can be used in a model
+        Tuple[List[ndarray], TfidfTransformer, CountVectorizer]: The extracted
+        features as well as the objects required to extract future features.
     """
     console.log("Extracting features")
     vectorizer = CountVectorizer(stop_words=stopwords.words('english'))

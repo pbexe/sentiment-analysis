@@ -1,11 +1,22 @@
+from typing import List
+
+from console import console
+from numpy import ndarray
+from sklearn import preprocessing, svm
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn import preprocessing, svm
-from console import console
 
 
+def svm_model(train_x:List[ndarray], train_y:List[int]) -> svm.SVC:
+    """Generates the SVM model from the given training data.
 
-def svm_model(train_x, train_y):
+    Args:
+        train_x (List[ndarray]): The x training data.
+        train_y (List[int]): The y training data.
+
+    Returns:
+        svm.SVC: The trained model.
+    """
     # svm_clf=make_pipeline(StandardScaler(), svm.SVC(decision_function_shape='ovo'))
     console.log("Specifying Hyperparameters")
     svm_clf=svm.SVC(decision_function_shape='ovo')

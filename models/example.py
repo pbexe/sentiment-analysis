@@ -1,11 +1,24 @@
-from transformers import AutoModelForSequenceClassification
-# from transformers import TFAutoModelForSequenceClassification
-from transformers import AutoTokenizer
-import numpy as np
 import csv
 import urllib.request
+from types import List, Tuple
 
-def example_model():
+import numpy as np
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from transformers.models.roberta.modeling_roberta import \
+    RoberetaForSequenceClassification
+from transformers.models.roberta.tokenization_roberta_fast import \
+    RobertaTokenizerFast
+
+
+def example_model() -> Tuple[RoberetaForSequenceClassification, RobertaTokenizerFast, List[str]]:
+    """Implementation of the example model provided along with the training
+    data.
+
+    Returns:
+        Tuple[RoberetaForSequenceClassification, RobertaTokenizerFast,
+        List[str]]: The trained model as well as the objects required to
+        transform the input data.
+    """
     task='sentiment'
     MODEL = f"cardiffnlp/twitter-roberta-base-{task}"
 
