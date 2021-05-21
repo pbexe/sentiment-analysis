@@ -13,6 +13,8 @@ from nltk.corpus import stopwords
 from numpy import ndarray
 from rich.progress import track
 
+from sklearn.feature_selection import SelectKBest, chi2
+
 
 def miles_cw_extractor(train_x:List[str], train_y:List[int]) -> Tuple[List[ndarray], TfidfTransformer, CountVectorizer]:
     """Extracts features from a list of strings
@@ -37,4 +39,7 @@ def miles_cw_extractor(train_x:List[str], train_y:List[int]) -> Tuple[List[ndarr
         tweets.append(
             tfid.transform(vectorizer.transform([tweet])).toarray()[0]
         )
-    return tweets, tfid, vectorizer
+    get_best=SelectKBest(chi2, k=500).fit(tweets, train_y)
+    tweets = get_best.transform(tweets)
+
+    return tweets, tfid, vectorizer, get_best

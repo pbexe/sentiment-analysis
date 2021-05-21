@@ -16,7 +16,7 @@ from feature_extraction import miles_cw_extractor
 from models import example_model, svm_model
 from preprocessing import analysis, preprocess
 
-NUMBER_OF_TRAINING_SAMPLES = 5000
+NUMBER_OF_TRAINING_SAMPLES = 20000
 
 def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
     """Load data from the provided filesystem
@@ -53,10 +53,10 @@ def svm_implementation() -> Tuple[SVC, TfidfTransformer, CountVectorizer]:
     train_x = train_x[:NUMBER_OF_TRAINING_SAMPLES]
     train_y = train_y[:NUMBER_OF_TRAINING_SAMPLES]
     console.log("Pre-processing Data")
-    train_x_processed, tfid, vectorizer = miles_cw_extractor(train_x, train_y)
+    train_x_processed, tfid, vectorizer, get_best = miles_cw_extractor(train_x, train_y)
     console.log("Generating Model")
     model = svm_model(train_x_processed, train_y)
-    return model, tfid, vectorizer
+    return model, tfid, vectorizer, get_best
 
 
 if __name__ == "__main__":
@@ -64,11 +64,11 @@ if __name__ == "__main__":
     console.log("Building SVM")
     if exists("checkpoint.p"):
         console.log("Checkpoint found in FS")
-        svm_model, tfid, vectorizer = pickle.load(open("checkpoint.p", "rb"))
+        svm_model, tfid, vectorizer, get_best= pickle.load(open("checkpoint.p", "rb"))
     else:
         with console.status("Generating new SVM...", spinner="moon"):
-            svm_model, tfid, vectorizer = svm_implementation()
-            pickle.dump((svm_model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
+            svm_model, tfid, vectorizer, get_best = svm_implementation()
+            pickle.dump((svm_model, tfid, vectorizer, get_best), open( "checkpoint.p", "wb" ) )
     console.log("Loading example model")    
     model, tokenizer, labels = example_model()
     console.rule("Performing Analysis")
@@ -92,9 +92,11 @@ if __name__ == "__main__":
         console.log(
             ("negative", "neutral", "positive")[
                 svm_model.predict(
+                    get_best.transform(
                     tfid.transform(
                         vectorizer.transform([text])
                     ).toarray()
+                )
                 )[0]
             ]
         )
