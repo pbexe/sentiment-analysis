@@ -16,6 +16,7 @@ from feature_extraction import miles_cw_extractor
 from models import example_model, svm_model
 from preprocessing import analysis, preprocess
 
+NUMBER_OF_TRAINING_SAMPLES = 5000
 
 def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
     """Load data from the provided filesystem
@@ -47,10 +48,10 @@ def svm_implementation() -> Tuple[SVC, TfidfTransformer, CountVectorizer]:
     console.log("Getting Data")
     train_x, train_y = get_data()
     console.log(len(train_x))
-    print(train_x[:5])
-    print(train_y[:5])
-    train_x = train_x[:1000]
-    train_y = train_y[:1000]
+    # console.log(train_x[:5])
+    # console.log(train_y[:5])
+    train_x = train_x[:NUMBER_OF_TRAINING_SAMPLES]
+    train_y = train_y[:NUMBER_OF_TRAINING_SAMPLES]
     console.log("Pre-processing Data")
     train_x_processed, tfid, vectorizer = miles_cw_extractor(train_x, train_y)
     console.log("Generating Model")
@@ -65,9 +66,9 @@ if __name__ == "__main__":
         console.log("Checkpoint found in FS")
         svm_model, tfid, vectorizer = pickle.load(open("checkpoint.p", "rb"))
     else:
-        console.log("No checkpoint found. Generating new SVM")
-        svm_model, tfid, vectorizer = svm_implementation()
-        pickle.dump((svm_model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
+        with console.status("Generating new SVM...", spinner="moon"):
+            svm_model, tfid, vectorizer = svm_implementation()
+            pickle.dump((svm_model, tfid, vectorizer), open( "checkpoint.p", "wb" ) )
     console.log("Loading example model")    
     model, tokenizer, labels = example_model()
     console.rule("Performing Analysis")
