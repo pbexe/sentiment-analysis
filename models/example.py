@@ -1,16 +1,11 @@
 import csv
 import urllib.request
-from types import List, Tuple
+from typing import List, Tuple
 
 import numpy as np
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-from transformers.models.roberta.modeling_roberta import \
-    RoberetaForSequenceClassification
-from transformers.models.roberta.tokenization_roberta_fast import \
-    RobertaTokenizerFast
 
-
-def example_model() -> Tuple[RoberetaForSequenceClassification, RobertaTokenizerFast, List[str]]:
+def example_model() -> Tuple[any, any, List[str]]:
     """Implementation of the example model provided along with the training
     data.
 

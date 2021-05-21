@@ -4,10 +4,7 @@ from typing import List, Tuple
 import numpy as np
 from rich import print
 from rich.panel import Panel
-from rich.traceback import install
-
-install()
-
+from rich.traceback import install; install()
 from os.path import exists
 
 from scipy.special import softmax
@@ -91,4 +88,12 @@ if __name__ == "__main__":
             s = scores[ranking[i]]
             console.log(f"{i+1}) {l} {np.round(float(s), 4)}")
         console.log("[bold]SVM:[/]")
-        console.log(("negative", "neutral", "positive")[svm_model.predict(tfid.transform(vectorizer.transform([text])).toarray())[0]])
+        console.log(
+            ("negative", "neutral", "positive")[
+                svm_model.predict(
+                    tfid.transform(
+                        vectorizer.transform([text])
+                    ).toarray()
+                )[0]
+            ]
+        )

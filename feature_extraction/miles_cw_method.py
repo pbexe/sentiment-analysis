@@ -2,11 +2,10 @@
 on my part of the project. This is pretty much what I used in the last CW.
 """
 
-import nltk
+import nltk; nltk.download("stopwords", quiet=True)
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
-nltk.download("stopwords", quiet=True)
 from typing import List, Tuple
 
 from console import console
