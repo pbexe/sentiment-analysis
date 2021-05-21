@@ -16,7 +16,7 @@ from feature_extraction import miles_cw_extractor
 from models import example_model, svm_model
 from preprocessing import analysis, preprocess
 
-NUMBER_OF_TRAINING_SAMPLES = 20000
+NUMBER_OF_TRAINING_SAMPLES = 45615
 
 def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
     """Load data from the provided filesystem
@@ -47,36 +47,43 @@ def svm_implementation() -> Tuple[SVC, TfidfTransformer, CountVectorizer]:
     
     console.log("Getting Data")
     train_x, train_y = get_data()
-    console.log(len(train_x))
+    # console.log(len(train_x))
     # console.log(train_x[:5])
     # console.log(train_y[:5])
     train_x = train_x[:NUMBER_OF_TRAINING_SAMPLES]
     train_y = train_y[:NUMBER_OF_TRAINING_SAMPLES]
-    console.log("Pre-processing Data")
-    train_x_processed, tfid, vectorizer, get_best = miles_cw_extractor(train_x, train_y)
-    console.log("Generating Model")
-    model = svm_model(train_x_processed, train_y)
+    with console.status("Pre-processing Data...", spinner="aesthetic"):
+        train_x_processed, tfid, vectorizer, get_best = miles_cw_extractor(train_x, train_y)
+    with console.status("Generating Model...", spinner="aesthetic"):
+        model = svm_model(train_x_processed, train_y)
     return model, tfid, vectorizer, get_best
 
 
 if __name__ == "__main__":
     console.rule("Building Models")
     console.log("Building SVM")
+
+    # Prepare SVM model
     if exists("checkpoint.p"):
         console.log("Checkpoint found in FS")
-        svm_model, tfid, vectorizer, get_best= pickle.load(open("checkpoint.p", "rb"))
+        with console.status("Loading checkpoint from file...", spinner="aesthetic"):
+            svm_model, tfid, vectorizer, get_best= pickle.load(open("checkpoint.p", "rb"))
     else:
-        with console.status("Generating new SVM...", spinner="moon"):
-            svm_model, tfid, vectorizer, get_best = svm_implementation()
-            pickle.dump((svm_model, tfid, vectorizer, get_best), open( "checkpoint.p", "wb" ) )
-    console.log("Loading example model")    
-    model, tokenizer, labels = example_model()
+        svm_model, tfid, vectorizer, get_best = svm_implementation()
+        with console.status("Saving checkpoint to file...", spinner="aesthetic"):
+            pickle.dump((svm_model, tfid, vectorizer, get_best), open("checkpoint.p", "wb" ))
+
+    with console.status("Loading example model...", spinner="aesthetic"): 
+        model, tokenizer, labels = example_model()
+
     console.rule("Performing Analysis")
     analysis()
+
     console.rule("Making predictions")
     while 1:
         text = input("sentence>>> ")
         text = preprocess(text)
+
         encoded_input = tokenizer(text, return_tensors='pt')
         output = model(**encoded_input)
         scores = output[0][0].detach().numpy()
@@ -88,15 +95,16 @@ if __name__ == "__main__":
             l = labels[ranking[i]]
             s = scores[ranking[i]]
             console.log(f"{i+1}) {l} {np.round(float(s), 4)}")
+
         console.log("[bold]SVM:[/]")
         console.log(
             ("negative", "neutral", "positive")[
                 svm_model.predict(
                     get_best.transform(
-                    tfid.transform(
-                        vectorizer.transform([text])
-                    ).toarray()
-                )
+                        tfid.transform(
+                            vectorizer.transform([text])
+                        ).toarray()
+                    )
                 )[0]
             ]
         )
