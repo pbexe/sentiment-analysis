@@ -17,9 +17,9 @@ def svm_model(train_x:List[ndarray], train_y:List[int]) -> svm.SVC:
     Returns:
         svm.SVC: The trained model.
     """
-    # svm_clf=make_pipeline(StandardScaler(), svm.SVC(decision_function_shape='ovo'))
     console.log("Specifying Hyperparameters")
-    svm_clf=svm.SVC(decision_function_shape='ovo')
+    svm_clf=make_pipeline(StandardScaler(), svm.SVC(decision_function_shape='ovo', verbose=True))
+    # svm_clf=svm.SVC(decision_function_shape='ovo')
     console.log("Fitting Data")
     svm_clf.fit(train_x, train_y)
     console.log("Data Fitted")
