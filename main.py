@@ -5,12 +5,16 @@ import numpy as np
 from rich import print
 from rich.panel import Panel
 from rich.traceback import install
+
 install()
 
-from console import console
 from os.path import exists
-from scipy.special import softmax
 
+from scipy.special import softmax
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.svm import SVC
+
+from console import console
 from feature_extraction import miles_cw_extractor
 from models import example_model, svm_model
 from preprocessing import analysis, preprocess
@@ -42,6 +46,7 @@ def svm_implementation() -> Tuple[SVC, TfidfTransformer, CountVectorizer]:
         Tuple[SVC, TfidfTransformer, CountVectorizer]: The SVM model as well as
         the objects required to transform the data for the model.
     """
+    
     console.log("Getting Data")
     train_x, train_y = get_data()
     console.log(len(train_x))
