@@ -33,7 +33,7 @@ def miles_cw_extractor(train_x:List[str], train_y:List[int]) -> Tuple[List[ndarr
 
     # Iterate through all of the training data and process it
     tweets = []
-    for tweet in track(train_x):
+    for tweet in train_x:
         tweets.append(
             tfid.transform(vectorizer.transform([tweet])).toarray()[0]
         )
