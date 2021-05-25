@@ -7,12 +7,12 @@ name = "pypi"
 numpy = "*"
 scipy = "*"
 transformers = "*"
-torch = "==1.7.0"
 pandas = "*"
 matplotlib = "*"
 sklearn = "*"
 rich = "*"
 nltk = "*"
+jupyter = "*"
 
 [dev-packages]
 
