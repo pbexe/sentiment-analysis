@@ -15,8 +15,10 @@ from console import console
 from feature_extraction import miles_cw_extractor
 from models import example_model, svm_model
 from preprocessing import analysis, preprocess
+from sklearn.metrics import classification_report
 
-NUMBER_OF_TRAINING_SAMPLES = 45615
+# NUMBER_OF_TRAINING_SAMPLES = 45615
+NUMBER_OF_TRAINING_SAMPLES = 5615
 
 def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
     """Load data from the provided filesystem
@@ -79,32 +81,43 @@ if __name__ == "__main__":
     console.rule("Performing Analysis")
     analysis()
 
-    console.rule("Making predictions")
-    while 1:
-        text = input("sentence>>> ")
-        text = preprocess(text)
-
-        encoded_input = tokenizer(text, return_tensors='pt')
-        output = model(**encoded_input)
-        scores = output[0][0].detach().numpy()
-        scores = softmax(scores)
-        ranking = np.argsort(scores)
-        ranking = ranking[::-1]
-        console.log("[bold]Example model:[/]")
-        for i in range(scores.shape[0]):
-            l = labels[ranking[i]]
-            s = scores[ranking[i]]
-            console.log(f"{i+1}) {l} {np.round(float(s), 4)}")
-
-        console.log("[bold]SVM:[/]")
-        console.log(
-            ("negative", "neutral", "positive")[
-                svm_model.predict(
-                    get_best.transform(
-                        tfid.transform(
-                            vectorizer.transform([text])
-                        ).toarray()
-                    )
-                )[0]
-            ]
+    v_x, v_y = get_data("val")
+    Y_text_predictions = svm_model.predict(get_best.transform(
+        tfid.transform(
+            vectorizer.transform(v_x)
+            ).toarray()
         )
+    )
+    print(classification_report(v_y, Y_text_predictions))
+
+
+
+    # console.rule("Making predictions")
+    # while 1:
+    #     text = input("sentence>>> ")
+    #     text = preprocess(text)
+
+    #     encoded_input = tokenizer(text, return_tensors='pt')
+    #     output = model(**encoded_input)
+    #     scores = output[0][0].detach().numpy()
+    #     scores = softmax(scores)
+    #     ranking = np.argsort(scores)
+    #     ranking = ranking[::-1]
+    #     console.log("[bold]Example model:[/]")
+    #     for i in range(scores.shape[0]):
+    #         l = labels[ranking[i]]
+    #         s = scores[ranking[i]]
+    #         console.log(f"{i+1}) {l} {np.round(float(s), 4)}")
+
+    #     console.log("[bold]SVM:[/]")
+    #     console.log(
+    #         ("negative", "neutral", "positive")[
+    #             svm_model.predict(
+    #                 get_best.transform(
+    #                     tfid.transform(
+    #                         vectorizer.transform([text])
+    #                     ).toarray()
+    #                 )
+    #             )[0]
+    #         ]
+    #     )
