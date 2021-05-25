@@ -5,6 +5,7 @@ import numpy as np
 from rich import print
 from rich.panel import Panel
 from rich.traceback import install; install()
+from rich.progress import track
 from os.path import exists
 
 from scipy.special import softmax
@@ -89,35 +90,45 @@ if __name__ == "__main__":
         )
     )
     print(classification_report(v_y, Y_text_predictions))
+    
+    Y_text_predictions = []
+    for tweet in track(v_x):
+        encoded_input = tokenizer(tweet, return_tensors='pt')
+        output = model(**encoded_input)
+        scores = output[0][0].detach().numpy()
+        scores = softmax(scores)
+        ranking = np.argsort(scores)
+        ranking = ranking[::-1]
+        prediction = ranking[0]
+        Y_text_predictions.append(prediction)
+    print(classification_report(v_y, Y_text_predictions))
 
+    console.rule("Making predictions")
+    while 1:
+        text = input("sentence>>> ")
+        text = preprocess(text)
 
+        encoded_input = tokenizer(text, return_tensors='pt')
+        output = model(**encoded_input)
+        scores = output[0][0].detach().numpy()
+        scores = softmax(scores)
+        ranking = np.argsort(scores)
+        ranking = ranking[::-1]
+        console.log("[bold]Example model:[/]")
+        for i in range(scores.shape[0]):
+            l = labels[ranking[i]]
+            s = scores[ranking[i]]
+            console.log(f"{i+1}) {l} {np.round(float(s), 4)}")
 
-    # console.rule("Making predictions")
-    # while 1:
-    #     text = input("sentence>>> ")
-    #     text = preprocess(text)
-
-    #     encoded_input = tokenizer(text, return_tensors='pt')
-    #     output = model(**encoded_input)
-    #     scores = output[0][0].detach().numpy()
-    #     scores = softmax(scores)
-    #     ranking = np.argsort(scores)
-    #     ranking = ranking[::-1]
-    #     console.log("[bold]Example model:[/]")
-    #     for i in range(scores.shape[0]):
-    #         l = labels[ranking[i]]
-    #         s = scores[ranking[i]]
-    #         console.log(f"{i+1}) {l} {np.round(float(s), 4)}")
-
-    #     console.log("[bold]SVM:[/]")
-    #     console.log(
-    #         ("negative", "neutral", "positive")[
-    #             svm_model.predict(
-    #                 get_best.transform(
-    #                     tfid.transform(
-    #                         vectorizer.transform([text])
-    #                     ).toarray()
-    #                 )
-    #             )[0]
-    #         ]
-    #     )
+        console.log("[bold]SVM:[/]")
+        console.log(
+            ("negative", "neutral", "positive")[
+                svm_model.predict(
+                    get_best.transform(
+                        tfid.transform(
+                            vectorizer.transform([text])
+                        ).toarray()
+                    )
+                )[0]
+            ]
+        )
