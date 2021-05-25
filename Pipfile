@@ -13,6 +13,7 @@ sklearn = "*"
 rich = "*"
 nltk = "*"
 jupyter = "*"
+tqdm = "*"
 
 [dev-packages]
 
