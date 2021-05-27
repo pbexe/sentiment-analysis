@@ -56,7 +56,7 @@ def get_data(type_:str = "train", equalise:bool = True, randomise:bool = True) -
                     output.append(pair)
             else:
                 total[pair[1]] = 1
-    x, y = zip(*output)
+        x, y = zip(*output)
     return x, y
 
 
