@@ -3,16 +3,14 @@ on my part of the project. This is pretty much what I used in the last CW.
 """
 
 import nltk; nltk.download("stopwords", quiet=True)
-from sklearn import preprocessing
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-
 from typing import List, Tuple
 
 from console import console
 from nltk.corpus import stopwords
 from numpy import ndarray
 from rich.progress import track
-
+from sklearn import preprocessing
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.feature_selection import SelectKBest, chi2
 
 

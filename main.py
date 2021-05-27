@@ -1,85 +1,25 @@
 import pickle
+from os.path import exists
+from random import shuffle
 from typing import List, Tuple
 
 import numpy as np
 from rich import print
 from rich.panel import Panel
-from rich.traceback import install; install()
 from rich.progress import track
-from os.path import exists
-
+from rich.traceback import install
 from scipy.special import softmax
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.metrics import classification_report
 from sklearn.svm import SVC
 
 from console import console
 from feature_extraction import miles_cw_extractor
-from models import example_model, svm_model
-from preprocessing import analysis, preprocess
-from sklearn.metrics import classification_report
-from random import shuffle
+from models import example_model, svm_implementation, svm_model
+from preprocessing import analysis, get_data, preprocess
 
-# NUMBER_OF_TRAINING_SAMPLES = 45615
+install()
 
-def get_data(type_:str = "train", equalise:bool = True, randomise:bool = True) -> Tuple[List[str], List[int]]:
-    """Load data from the provided filesystem
-
-    Args:
-        type_ (str, optional): Type of data to loads. Defaults to "train".
-        equalise (bool, optional): Whether to equalise input classes.
-        randomise (bool, optional): Whether to randomise the order of training data.
-
-    Returns:
-        Tuple[List[str], List[int]]: Tuple of x and y data.
-    """
-
-    x = []
-    y = []
-    with open(f"data/{type_}_text.txt", "r") as fp:
-        x = fp.readlines()
-    with open(f"data/{type_}_labels.txt", "r") as fp:
-        y = [int(i) for i in fp.readlines()]
-    if randomise:
-        zipped = list(zip(x,y))
-        shuffle(zipped)
-        x, y = zip(*zipped)
-    if equalise:
-        freqencies = {item:y.count(item) for item in set(y)}
-        min_ = min(freqencies.values())
-        zipped = list(zip(x,y))
-        total = dict()
-        output = []
-        for pair in zipped:
-            if pair[1] in total:
-                total[pair[1]] += 1
-                if total[pair[1]] <= min_:
-                    output.append(pair)
-            else:
-                total[pair[1]] = 1
-        x, y = zip(*output)
-    return x, y
-
-
-def svm_implementation() -> Tuple[SVC, TfidfTransformer, CountVectorizer]:
-    """Implementation of an SVM classifier
-
-    Returns:
-        Tuple[SVC, TfidfTransformer, CountVectorizer]: The SVM model as well as
-        the objects required to transform the data for the model.
-    """
-    
-    console.log("Getting Data")
-    train_x, train_y = get_data()
-    # console.log(len(train_x))
-    # console.log(train_x[:5])
-    # console.log(train_y[:5])
-    # train_x = train_x[:NUMBER_OF_TRAINING_SAMPLES]
-    # train_y = train_y[:NUMBER_OF_TRAINING_SAMPLES]
-    with console.status("Pre-processing Data...", spinner="aesthetic"):
-        train_x_processed, tfid, vectorizer, get_best = miles_cw_extractor(train_x, train_y)
-    with console.status("Generating Model...", spinner="aesthetic"):
-        model = svm_model(train_x_processed, train_y)
-    return model, tfid, vectorizer, get_best
 
 
 if __name__ == "__main__":
