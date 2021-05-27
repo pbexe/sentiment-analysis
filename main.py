@@ -17,15 +17,17 @@ from feature_extraction import miles_cw_extractor
 from models import example_model, svm_model
 from preprocessing import analysis, preprocess
 from sklearn.metrics import classification_report
+from random import shuffle
 
 # NUMBER_OF_TRAINING_SAMPLES = 45615
-NUMBER_OF_TRAINING_SAMPLES = 5615
 
-def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
+def get_data(type_:str = "train", equalise:bool = True, randomise:bool = True) -> Tuple[List[str], List[int]]:
     """Load data from the provided filesystem
 
     Args:
         type_ (str, optional): Type of data to loads. Defaults to "train".
+        equalise (bool, optional): Whether to equalise input classes.
+        randomise (bool, optional): Whether to randomise the order of training data.
 
     Returns:
         Tuple[List[str], List[int]]: Tuple of x and y data.
@@ -37,6 +39,24 @@ def get_data(type_:str = "train") -> Tuple[List[str], List[int]]:
         x = fp.readlines()
     with open(f"data/{type_}_labels.txt", "r") as fp:
         y = [int(i) for i in fp.readlines()]
+    if randomise:
+        zipped = list(zip(x,y))
+        shuffle(zipped)
+        x, y = zip(*zipped)
+    if equalise:
+        freqencies = {item:y.count(item) for item in set(y)}
+        min_ = min(freqencies.values())
+        zipped = list(zip(x,y))
+        total = dict()
+        output = []
+        for pair in zipped:
+            if pair[1] in total:
+                total[pair[1]] += 1
+                if total[pair[1]] <= min_:
+                    output.append(pair)
+            else:
+                total[pair[1]] = 1
+    x, y = zip(*output)
     return x, y
 
 
@@ -53,8 +73,8 @@ def svm_implementation() -> Tuple[SVC, TfidfTransformer, CountVectorizer]:
     # console.log(len(train_x))
     # console.log(train_x[:5])
     # console.log(train_y[:5])
-    train_x = train_x[:NUMBER_OF_TRAINING_SAMPLES]
-    train_y = train_y[:NUMBER_OF_TRAINING_SAMPLES]
+    # train_x = train_x[:NUMBER_OF_TRAINING_SAMPLES]
+    # train_y = train_y[:NUMBER_OF_TRAINING_SAMPLES]
     with console.status("Pre-processing Data...", spinner="aesthetic"):
         train_x_processed, tfid, vectorizer, get_best = miles_cw_extractor(train_x, train_y)
     with console.status("Generating Model...", spinner="aesthetic"):
@@ -82,7 +102,7 @@ if __name__ == "__main__":
     console.rule("Performing Analysis")
     analysis()
 
-    v_x, v_y = get_data("val")
+    v_x, v_y = get_data("val", False)
     Y_text_predictions = svm_model.predict(get_best.transform(
         tfid.transform(
             vectorizer.transform(v_x)
