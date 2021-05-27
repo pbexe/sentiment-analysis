@@ -15,7 +15,7 @@ from sklearn.svm import SVC
 from console import console
 from feature_extraction import miles_cw_extractor
 from models import example_model, svm_model
-from preprocessing import analysis, preprocess
+from preprocessing import preprocess
 from sklearn.metrics import classification_report
 
 # NUMBER_OF_TRAINING_SAMPLES = 45615
@@ -78,9 +78,6 @@ if __name__ == "__main__":
 
     with console.status("Loading example model...", spinner="aesthetic"): 
         model, tokenizer, labels = example_model()
-
-    console.rule("Performing Analysis")
-    analysis()
 
     v_x, v_y = get_data("val")
     Y_text_predictions = svm_model.predict(get_best.transform(
