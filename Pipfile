@@ -17,6 +17,7 @@ tqdm = "*"
 plotly="*"
 Pillow="*"
 wordcloud="*"
+csv="*"
 
 [dev-packages]
 
